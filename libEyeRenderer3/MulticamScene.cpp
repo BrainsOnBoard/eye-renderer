@@ -420,48 +420,15 @@ void processGLTFNode(
                 // TODO: Add support for vec3 vertex colours here.
                 // Check that the vertex colours are 4-component:
                 const tinygltf::Accessor& vertex_colours_gltf_accessor = model.accessors[ vertex_colours_accessor_iter->second ];
-                if(vertex_colours_gltf_accessor.type != TINYGLTF_TYPE_VEC4)
-                {
-                  std::cerr << "\t\t\tWarning: Vertex colours are not of type vec4. Ignoring vertex colours.\n";
-                  mesh->host_colors_uc4.push_back( bufferViewFromGLTF<uchar4>( model, scene, -1 ) );
-                  mesh->host_color_types.push_back(-1);
-                }else{
+
+                if (vertex_colours_gltf_accessor.type == TINYGLTF_TYPE_VEC4) {
+
                   const tinygltf::BufferView& colour_buffer_view = model.bufferViews[ vertex_colours_gltf_accessor.bufferView ];
                   const tinygltf::Buffer& colour_buffer = model.buffers[ colour_buffer_view.buffer ];
 
                   // Determine the type and component type of the vertex_colours_gltf_accessor
                   const int numComponents = tinygltf::GetNumComponentsInType(vertex_colours_gltf_accessor.type);
                   int componentType = vertex_colours_gltf_accessor.componentType;
-                  //switch(componentType)
-                  //{
-                  //  case TINYGLTF_COMPONENT_TYPE_FLOAT:
-                  //    std::cerr << "\t\t\tComponent type is float.\n";
-                  //    break;
-                  //  case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
-                  //    std::cerr << "\t\t\tComponent type is unsigned int.\n";
-                  //    break;
-                  //  case TINYGLTF_COMPONENT_TYPE_INT:
-                  //    std::cerr << "\t\t\tComponent type is int.\n";
-                  //    break;
-                  //  case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
-                  //    std::cerr << "\t\t\tComponent type is unsigned short.\n";
-                  //    break;
-                  //  case TINYGLTF_COMPONENT_TYPE_SHORT:
-                  //    std::cerr << "\t\t\tComponent type is short.\n";
-                  //    break;
-                  //  case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
-                  //    std::cerr << "\t\t\tComponent type is unsigned byte.\n";
-                  //    break;
-                  //  case TINYGLTF_COMPONENT_TYPE_BYTE:
-                  //    std::cerr << "\t\t\tComponent type is byte.\n";
-                  //    break;
-                  //  case TINYGLTF_COMPONENT_TYPE_DOUBLE:
-                  //    std::cerr << "\t\t\tComponent type is double.\n";
-                  //    break;
-                  //  default:
-                  //    std::cerr << "\t\t\tComponent type is unknown.\n";
-                  //    break;
-                  //}
 
                   // TODO: Consider using `isObjectsExtraValueTrue(model.meshes[gltf_node.mesh].extras, "vertex-colours") here
                   //       to determine whether to use vertex colours or not.
@@ -470,47 +437,112 @@ void processGLTFNode(
                     case TINYGLTF_COMPONENT_TYPE_FLOAT:
                       std::cerr << "\t\t\tComponent type is float.\n";
                       mesh->host_colors_f4.push_back( bufferViewFromGLTF<float4>( model, scene, vertex_colours_accessor_iter->second ) );
-                      
+
                       // We must populate the other buffers so that indices align
+                      mesh->host_colors_f3.push_back( bufferViewFromGLTF<float3>( model, scene, -1) );
                       mesh->host_colors_us4.push_back( bufferViewFromGLTF<ushort4>( model, scene, -1) );
                       mesh->host_colors_uc4.push_back( bufferViewFromGLTF<uchar4>( model, scene, -1) );
                       break;
                     case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
                       std::cerr << "\t\t\tComponent type is unsigned short.\n";
                       mesh->host_colors_us4.push_back( bufferViewFromGLTF<ushort4>( model, scene, vertex_colours_accessor_iter->second ) );
-                      
+
                       // We must populate the other buffers so that indices align
+                      mesh->host_colors_f3.push_back( bufferViewFromGLTF<float3>( model, scene, -1) );
                       mesh->host_colors_f4.push_back( bufferViewFromGLTF<float4>( model, scene, -1) );
                       mesh->host_colors_uc4.push_back( bufferViewFromGLTF<uchar4>( model, scene, -1) );
                       break;
                     case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
                       std::cerr << "\t\t\tComponent type is unsigned byte.\n";
                       mesh->host_colors_uc4.push_back( bufferViewFromGLTF<uchar4>( model, scene, vertex_colours_accessor_iter->second ) );
-                      
+
                       // We must populate the other buffers so that indices align
+                      mesh->host_colors_f3.push_back( bufferViewFromGLTF<float3>( model, scene, -1) );
                       mesh->host_colors_f4.push_back( bufferViewFromGLTF<float4>( model, scene, -1) );
                       mesh->host_colors_us4.push_back( bufferViewFromGLTF<ushort4>( model, scene, -1) );
                       break;
                     default:
                       std::cerr << "\t\t\tComponent type is not supported.\n";
-                      
+
                       // We must populate the other buffers so that indices align
                       mesh->host_colors_uc4.push_back( bufferViewFromGLTF<uchar4>( model, scene, -1 ) );
                       mesh->host_colors_f4.push_back( bufferViewFromGLTF<float4>( model, scene, -1) );
+                      mesh->host_colors_f3.push_back( bufferViewFromGLTF<float3>( model, scene, -1) );
                       mesh->host_colors_us4.push_back( bufferViewFromGLTF<ushort4>( model, scene, -1) );
                       componentType = -1;
                       break;
                   }
                   mesh->host_color_types.push_back(componentType);
+                  if (mesh->host_color_container == -1) {
+                      mesh->host_color_container = 4;
+                  }
+                  if (mesh->host_color_container != 4) {
+                      std::cerr << "\t\t\tBAD color container size!.\n";
+                  }
                 }
+                else if (vertex_colours_gltf_accessor.type == TINYGLTF_TYPE_VEC3)
+                {
+                  std::cerr << "\t\t\tWarning: Vertex colours are of type vec3.\n";
+
+                  const tinygltf::BufferView& colour_buffer_view = model.bufferViews[ vertex_colours_gltf_accessor.bufferView ];
+                  const tinygltf::Buffer& colour_buffer = model.buffers[ colour_buffer_view.buffer ];
+
+                  // Determine the type and component type of the vertex_colours_gltf_accessor
+                  const int numComponents = tinygltf::GetNumComponentsInType(vertex_colours_gltf_accessor.type);
+                  int componentType = vertex_colours_gltf_accessor.componentType;
+
+                  // TODO: Consider using `isObjectsExtraValueTrue(model.meshes[gltf_node.mesh].extras, "vertex-colours") here
+                  //       to determine whether to use vertex colours or not.
+                  switch(componentType)
+                  {
+                    case TINYGLTF_COMPONENT_TYPE_FLOAT:
+                      std::cerr << "\t\t\tComponent type is float.\n";
+                      mesh->host_colors_f3.push_back( bufferViewFromGLTF<float3>( model, scene, vertex_colours_accessor_iter->second ) );
+
+                      // We must populate the other buffers so that indices align
+                      mesh->host_colors_f4.push_back( bufferViewFromGLTF<float4>( model, scene, -1) );
+                      mesh->host_colors_us4.push_back( bufferViewFromGLTF<ushort4>( model, scene, -1) );
+                      mesh->host_colors_uc4.push_back( bufferViewFromGLTF<uchar4>( model, scene, -1) );
+                      break;
+                    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
+                    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
+                    default:
+                      std::cerr << "\t\t\tComponent type is not supported.\n";
+
+                      // We must populate the other buffers so that indices align
+                      mesh->host_colors_uc4.push_back( bufferViewFromGLTF<uchar4>( model, scene, -1 ) );
+                      mesh->host_colors_f4.push_back( bufferViewFromGLTF<float4>( model, scene, -1) );
+                      mesh->host_colors_f3.push_back( bufferViewFromGLTF<float3>( model, scene, -1) );
+                      mesh->host_colors_us4.push_back( bufferViewFromGLTF<ushort4>( model, scene, -1) );
+                      componentType = -1;
+                      break;
+                  }
+                  mesh->host_color_types.push_back(componentType);
+                  if (mesh->host_color_container == -1) {
+                      mesh->host_color_container = 3;
+                  }
+                  if (mesh->host_color_container != 3) {
+                      std::cerr << "\t\t\tBAD color container size!.\n";
+                  }
+                }
+                else
+                {
+                  std::cerr << "\t\t\tWarning: Vertex colours are not of type vec3 or vec4. Ignoring vertex colours.\n";
+                  mesh->host_colors_uc4.push_back( bufferViewFromGLTF<uchar4>( model, scene, -1 ) );
+                  mesh->host_colors_f3.push_back( bufferViewFromGLTF<float3>( model, scene, -1) );
+                  mesh->host_colors_f4.push_back( bufferViewFromGLTF<float4>( model, scene, -1) );
+                  mesh->host_colors_us4.push_back( bufferViewFromGLTF<ushort4>( model, scene, -1) );
+                  mesh->host_color_types.push_back(-1);
+                }
+
             }
             else
             {
                 std::cerr << "\t\tHas vertex colours: false\n";
                 mesh->host_color_types.push_back(-1);
-
                 // We must populate the other buffers so that indices align
                 mesh->host_colors_uc4.push_back( bufferViewFromGLTF<uchar4>( model, scene, -1 ) );
+                mesh->host_colors_f3.push_back( bufferViewFromGLTF<float3>( model, scene, -1) );
                 mesh->host_colors_f4.push_back( bufferViewFromGLTF<float4>( model, scene, -1) );
                 mesh->host_colors_us4.push_back( bufferViewFromGLTF<ushort4>( model, scene, -1) );
             }
@@ -1720,6 +1752,8 @@ void MulticamScene::createSBTmissAndHit(OptixShaderBindingTable& sbt)
                 rec.data.geometry_data.triangle_mesh.indices   = mesh->indices[i];
 
                 rec.data.geometry_data.triangle_mesh.dev_color_type = mesh->host_color_types[i];
+                rec.data.geometry_data.triangle_mesh.color_container = mesh->host_color_container; // specifies vec3 or vec4 colors
+                rec.data.geometry_data.triangle_mesh.dev_colors_f3 = mesh->host_colors_f3[i];
                 rec.data.geometry_data.triangle_mesh.dev_colors_f4 = mesh->host_colors_f4[i];
                 rec.data.geometry_data.triangle_mesh.dev_colors_us4 = mesh->host_colors_us4[i];
                 rec.data.geometry_data.triangle_mesh.dev_colors_uc4 = mesh->host_colors_uc4[i];

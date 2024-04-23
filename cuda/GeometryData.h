@@ -45,10 +45,17 @@ struct GeometryData
         BufferView<float3>   positions;
         BufferView<float3>   normals;
         BufferView<float2>   texcoords;
+        BufferView<float3>  dev_colors_f3;
         BufferView<float4>  dev_colors_f4;
         BufferView<ushort4> dev_colors_us4;
         BufferView<uchar4>  dev_colors_uc4;
+        // Holds the type of the color data, which may be float or unsigned char/short
         int dev_color_type = -1;
+        // Holds a number referring to the format of the color buffer, which may be vec3 of float,
+        // vec4 of float, vec4 of unsigned char, vec4 of unsigned short (perhaps also vec3 of
+        // unsigned char and vec3 of unsigned short, but these are not supported at time of
+        // writing).
+        int color_container = -1;
     };
 
 

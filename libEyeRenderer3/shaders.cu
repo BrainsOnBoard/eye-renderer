@@ -361,7 +361,7 @@ extern "C" __global__ void __raygen__compound_projection_raw_ommatidial_samples(
   // Break if this is not a pixel to render:
   if(launch_idx.y >= eyeData.samplesPerOmmatidium || launch_idx.x >= eyeData.ommatidialCount)
     return;
-  
+
   // Set the colour based on the ommatidia this pixel represents
   const uint32_t image_index  = launch_idx.y * launch_dims.x + launch_idx.x;
   float3 pixel = ((float3*)eyeData.d_compoundBuffer)[eyeData.ommatidialCount*launch_idx.y + launch_idx.x];
@@ -400,7 +400,7 @@ extern "C" __global__ void __raygen__compound_projection_single_dimension_fast()
 
   // Break if this is not a pixel to render:
   if(launch_idx.y > 0 || launch_idx.x >= posedData->specializedData.ommatidialCount) return;
-  
+
   // Set the colour based on the ommatidia this pixel represents
   params.frame_buffer[(uint32_t)launch_idx.x] = make_color(getSummedOmmatidiumData(launch_idx.x, posedData->specializedData));
 }
@@ -501,7 +501,7 @@ extern "C" __global__ void __raygen__compound_projection_spherical_split_orienta
   const size_t ommatidialCount = posedData->specializedData.ommatidialCount;
 
   //// Project the 2D coordinates of the display window to two sets of spherical coordinates
-  // Get the 2D coordinates of the pixel 
+  // Get the 2D coordinates of the pixel
   const float2 uv = make_float2(
           static_cast<float>( launch_idx.x ) / static_cast<float>( launch_dims.x ),
           static_cast<float>( launch_idx.y ) / static_cast<float>( launch_dims.y )

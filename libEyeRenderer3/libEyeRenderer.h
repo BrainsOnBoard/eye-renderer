@@ -22,7 +22,7 @@ extern "C"
   void setRenderSize(int w, int h);         // Sets the width an height of the rendering frame
   double renderFrame(void);                 // Actually renders the frame, returns the time it took to render the frame (in ms)
   void displayFrame(void);                  // Displays the rendered frame to the open GL display window
-  void saveFrameAs(char* ppmFilename);      // Saves the frame (must be a .ppm filename)
+  void saveFrameAs(const char* ppmFilename);// Saves the frame (must be a .ppm filename)
   unsigned char* getFramePointer(void);     // Retrieves a pointer to the frame data
 
   // Camera control

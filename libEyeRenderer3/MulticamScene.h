@@ -83,10 +83,12 @@ class MulticamScene
         std::vector<BufferView<float3> >  positions;
         std::vector<BufferView<float3> >  normals;
         std::vector<BufferView<float2> >  texcoords;
+        std::vector<BufferView<float3 >>  host_colors_f3;
         std::vector<BufferView<float4 >>  host_colors_f4;
         std::vector<BufferView<ushort4>>  host_colors_us4;
         std::vector<BufferView<uchar4 >>  host_colors_uc4;
         std::vector<int>                  host_color_types; // -1 = doesn't use vertex colours, 5126 = float4, 5123 = ushort4, 5121 = uchar4
+        int                               host_color_container = -1; // -1 for unknown. 3 for vec3 (and use host_colors_f3)  4 for vec4 (use host_colors_f4 or _us4 or _uc4)
 
         std::vector<int32_t>              material_idx;
 
@@ -159,7 +161,7 @@ class MulticamScene
     void                                      checkIfCurrentCameraIsCompound();// Updates flag accessed below
     const bool                                isCompoundEyeActive() const  { return m_selectedCameraIsCompound; }
     void                                      changeCompoundSampleRateBy(int change);
-    
+
 
     OptixPipeline                             pipeline()const              { return m_pipeline;   }
     const OptixShaderBindingTable*            sbt()const                   { return &m_sbt;       }

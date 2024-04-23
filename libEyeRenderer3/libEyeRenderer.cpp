@@ -256,7 +256,7 @@ void displayFrame(void)
   // Swap the buffer
   glfwSwapBuffers(window);
 }
-void saveFrameAs(char* ppmFilename)
+void saveFrameAs(const char* ppmFilename)
 {
   sutil::ImageBuffer buffer;
   buffer.data = outputBuffer.getHostPointer();
@@ -445,7 +445,7 @@ void setOmmatidia(OmmatidiumPacket* omms, size_t count)
     ommVector[i].acceptanceAngleRadians = omm.acceptanceAngle;
     ommVector[i].focalPointOffset = omm.focalpointOffset;
   }
-  
+
   // Actually set the new ommatidial structure
   //((CompoundEye*)scene.getCamera())->setOmmatidia(ommObjectArray.data(), count);
   ((CompoundEye*)scene.getCamera())->setOmmatidia(ommVector.data(), count);
